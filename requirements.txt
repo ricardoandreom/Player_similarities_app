@@ -8,3 +8,4 @@ Pillow==9.5.0
 requests==2.27.1
 scikit_learn==1.2.2
 streamlit==1.17.0
+altair==4.1.0
