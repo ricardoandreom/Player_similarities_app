@@ -7,10 +7,10 @@ import lxml
 
 # white Logo
 white_logo_url = \
-    "https://raw.githubusercontent.com/ricardoandreom/Liga-Portugal-2021-22/master/Half%20Space%20Branco.png"
+    "https://raw.githubusercontent.com/ricardoandreom/Data/master/Images/Personal%20Logos/Half%20Space%20Branco.png"
 
 # black logo
-black_logo_url = "https://raw.githubusercontent.com/ricardoandreom/Liga-Portugal-2021-22/master/halfspace_analytics.png"
+black_logo_url = "https://raw.githubusercontent.com/ricardoandreom/Data/master/Images/Personal%20Logos/Half%20Space%20Preto.png"
 
 # LANDING PAGE LINK
 SOCIAL_MEDIA = {
