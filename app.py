@@ -57,20 +57,7 @@ st.sidebar.write('Note: No data for goalkeepers yet!')
 
 player_position_sim = df_orig.set_index('Player').loc[player]['Position']
 
-'''
 # define the max value that the user can choose for min 90s played
-if df_orig['90s'].max() == 1:
-    max_value_sim = int(df_orig['90s'].max())
-elif df_orig['90s'].max() < 5:
-    max_value_sim = int(df_orig['90s'].max()) - 1
-elif df_orig['90s'].max() < 8:
-    max_value_sim = int(df_orig['90s'].max()) - 3
-elif df_orig['90s'].max() < 12:
-    max_value_sim = int(df_orig['90s'].max()) - 4
-else:
-    max_value_sim = int(df_orig['90s'].max()) - 7
-'''
-
 max_value_sim = int(df['90s'].max()) # - 5)
 
 min_ninety_sim = st.sidebar.slider("**Select mininum 90s played you want to consider for the model similarities:**", 1, max_value_sim, key="min_ninety_sim")
