@@ -13,6 +13,7 @@ from pathlib import Path
 from PIL import Image
 from io import BytesIO
 import requests
+import seaborn as sns
 from datetime import datetime
 import lxml
 
@@ -107,7 +108,7 @@ def edit_df(df_concatenated):
 
     numeric_columns = ['Age', '90s', 'Non-penalty goals', 'Shot creation actions', 'Aerial duels won %', 'Fouls won',
                        'Crosses', 'Ball recoveries', 'npxG', 'npxG/shot', 'Shots on target', 'Passes completed',
-                       'Key passes', 'xA', 'Final 3rd passes', 'Long passes', 'Progressive passes', 'Pass completion %',
+                       'Key passes', 'Expected xA', 'Final 3rd passes', 'Long passes', 'Progressive passes', 'Pass completion %',
                        'Tackles + interceptions', 'Shots blocked', 'Clearances', 'Dribbles attempted',
                        'Dribbles success %', 'Carries into penalty area', 'Passes received',
                        'Progressive passes received', 'Progressive carries']
@@ -117,7 +118,7 @@ def edit_df(df_concatenated):
 
     ninety_columns = ['Non-penalty goals', 'Shot creation actions', 'Fouls won',
                       'Crosses', 'Ball recoveries', 'npxG', 'Shots on target',
-                      'Passes completed', 'Key passes', 'xA', 'Final 3rd passes',
+                      'Passes completed', 'Key passes', 'Expected xA', 'Final 3rd passes',
                       'Long passes', 'Progressive passes', 'Tackles + interceptions',
                       'Shots blocked', 'Clearances', 'Dribbles attempted',
                       'Carries into penalty area', 'Passes received',
@@ -144,7 +145,7 @@ def get_df_complete():
     df_shotcreation = get_df(url_shotcreation, ['SCA SCA'])
     df_misc = get_df(url_misc, ['Aerial Duels Won%', 'Performance Fld', 'Performance Crs', 'Performance Recov'])
     df_shoot = get_df(url_shoot, ['Expected npxG', 'Expected npxG/Sh', 'Standard SoT'])
-    df_passing = get_df(url_passing, ['Total Cmp', 'KP', 'xA', '1/3', 'Long Att', 'PrgP', 'Total Cmp%'])
+    df_passing = get_df(url_passing, ['Total Cmp', 'KP', 'Expected xA', '1/3', 'Long Att', 'PrgP', 'Total Cmp%'])
     df_def = get_df(url_def, ['Tkl+Int', 'Blocks Sh', 'Clr'])
     df_poss = get_df(url_poss, ['Take-Ons Att', 'Take-Ons Succ%', 'Carries CPA', 'Receiving Rec', 'Receiving PrgR',
                                 'Carries PrgC'])
@@ -173,7 +174,7 @@ def get_df_complete():
 def percentiles_df(df_filtered_player_position):
     # percentile columns list
     df_cols_pct = ['Non-penalty goals', 'Shot creation actions', 'Aerial duels won %', 'Fouls won', 'Crosses',
-                   'Ball recoveries', 'npxG', 'npxG/shot', 'Shots on target', 'Passes completed', 'Key passes', 'xA',
+                   'Ball recoveries', 'npxG', 'npxG/shot', 'Shots on target', 'Passes completed', 'Key passes', 'Expected xA',
                    'Final 3rd passes', 'Long passes', 'Progressive passes', 'Pass completion %',
                    'Tackles + interceptions', 'Shots blocked', 'Clearances', 'Dribbles attempted', 'Dribbles success %',
                    'Carries into penalty area', 'Passes received', 'Progressive passes received', 'Progressive carries']
@@ -195,20 +196,20 @@ def templates_position_params_legend(player_position):
                          'Carries into\npenalty area', 'Progressive\ncarries',
                          'Dribbles\nattempted', 'Dribbles\nsuccess %',
                          'Tackles\n+\ninterceptions', 'Shots\nblocked', 'Clearances', 'Aerial duels\nwon %',
-                         'Ball\nrecoveries', 'Final 3rd\npasses', 'Long\npasses', 'Progressive\npasses', 'xA']
+                         'Ball\nrecoveries', 'Final 3rd\npasses', 'Long\npasses', 'Progressive\npasses', 'Expected xA']
 
     elif player_position == 'Midfielder':
         params_legend = ['Non-penalty\ngoals', 'Shot creation\nactions',
                          'Progressive\ncarries', 'Dribbles\nattempted', 'Dribbles\nsuccess %',
                          'Tackles +\ninterceptions', 'Aerial duels\nwon %', 'Fouls\nwon',
                          'Ball\nrecoveries', 'Passes\ncompleted', 'Pass\ncompletion %', 'Key\npasses',
-                         'Final 3rd\npasses', 'Long\npasses', 'Progressive\npasses', 'xA']
+                         'Final 3rd\npasses', 'Long\npasses', 'Progressive\npasses', 'Expected xA']
 
     else:
         params_legend = ['Non-penalty\ngoals', 'npxG', 'npxG/shot', 'Shots on\ntarget',
                          'Shot creation\nactions', 'Dribbles\nattempted', 'Dribbles\nsuccess %',
                          'Carries into\npenalty area', 'Tackles +\ninterceptions', 'Aerial duels\nwon %',
-                         'Passes\nreceived', 'Passes\ncompleted', 'Crosses', 'Key\npasses', 'xA']
+                         'Passes\nreceived', 'Passes\ncompleted', 'Crosses', 'Key\npasses', 'Expected xA']
 
     return params_legend
 
@@ -224,20 +225,20 @@ def templates_position_params(player_position):
                   'Tackles + interceptions_pct', 'Shots blocked_pct', 'Clearances_pct', 'Aerial duels won %_pct',
                   'Ball recoveries_pct', 'Final 3rd passes_pct', 'Long passes_pct',
                   'Progressive passes_pct',
-                  'xA_pct']
+                  'Expected xA_pct']
 
     elif player_position == 'Midfielder':
         params = ['Non-penalty goals_pct', 'Shot creation actions_pct',
                   'Progressive carries_pct', 'Dribbles attempted_pct', 'Dribbles success %_pct',
                   'Tackles + interceptions_pct', 'Aerial duels won %_pct', 'Fouls won_pct',
                   'Ball recoveries_pct', 'Passes completed_pct', 'Pass completion %_pct', 'Key passes_pct',
-                  'Final 3rd passes_pct', 'Long passes_pct', 'Progressive passes_pct', 'xA_pct']
+                  'Final 3rd passes_pct', 'Long passes_pct', 'Progressive passes_pct', 'Expected xA_pct']
 
     else:
         params = ['Non-penalty goals_pct', 'npxG_pct', 'npxG/shot_pct', 'Shots on target_pct',
                   'Shot creation actions_pct', 'Dribbles attempted_pct', 'Dribbles success %_pct',
                   'Carries into penalty area_pct', 'Tackles + interceptions_pct', 'Aerial duels won %_pct',
-                  'Passes received_pct', 'Passes completed_pct', 'Crosses_pct', 'Key passes_pct', 'xA_pct']
+                  'Passes received_pct', 'Passes completed_pct', 'Crosses_pct', 'Key passes_pct', 'Expected xA_pct']
 
     return params
 
