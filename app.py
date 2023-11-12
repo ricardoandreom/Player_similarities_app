@@ -35,8 +35,8 @@ st.sidebar.markdown(f'<a href="{twitter_url}" target="_blank"><img src="{white_l
 
 # rest of the streamlit part
 st.markdown("""
-    <p style='font-size: 19px; font-weight: bold; color: black;'> 🔴 Choose a player and find out who are the 15 most
-    similar players, according to the implicit model. You can filter the results per age and league.</p>
+    <p style='font-size: 19px; font-weight: bold; color: white;'> 🔴 Choose a player and find out who are the 15th most
+similar players, according to the implicit model. You can filter the results by age and league.</p>
 """, unsafe_allow_html=True)
 
 # GK note missing data
@@ -93,7 +93,7 @@ try:
 
     st.dataframe(player_similars.set_index('Player'))
 except KeyError:
-    st.warning("Error: We have no similarities for this player because this players has no enough minutes to get conclusions.")
+    st.warning("Error: We have no similarities for this player because this players has not had enough minutes to draw conclusions.")
 
 
 
