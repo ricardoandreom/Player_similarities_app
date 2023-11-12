@@ -3,7 +3,7 @@ import streamlit as st
 from pathlib import Path
 import app_functions as app
 import lxml
-
+ 
 # white Logo
 white_logo_url = \
     "https://raw.githubusercontent.com/ricardoandreom/Data/master/Images/Personal%20Logos/Half%20Space%20Branco.png"
