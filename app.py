@@ -80,11 +80,10 @@ st.sidebar.markdown(f'<a href="{kofi_link}" target="_blank"><img src="https://cd
 try:
     player_similars = app.similarity_process_v2(df_orig,player)[['Player',
                                                       '% similarity',
-                                                      'Squad',
                                                       'Position',
-                                                      'Secondary Position'
                                                       'Age',
-                                                      '90s'
+                                                      '90s',
+                                                      'Squad',
                                                       'League']]
     player_similars = player_similars[
         (player_similars['Age'] <= age_sim) &
