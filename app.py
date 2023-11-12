@@ -36,7 +36,7 @@ st.sidebar.markdown(f'<a href="{twitter_url}" target="_blank"><img src="{white_l
 # rest of the streamlit part
 st.markdown("""
     <p style='font-size: 19px; font-weight: bold; color: white;'> 🔴 Choose a player and find out who are the 15th most
-similar players, according to the implicit model. You can filter the results by age, league and minimum 90s played.</p>
+similar players, according to the implicit model. You can filter the results by age and league.</p>
 """, unsafe_allow_html=True)
 
 # GK note missing data
