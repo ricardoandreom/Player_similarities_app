@@ -35,8 +35,8 @@ st.sidebar.markdown(f'<a href="{twitter_url}" target="_blank"><img src="{white_l
 
 # rest of the streamlit part
 st.markdown("""
-    <p style='font-size: 19px; font-weight: bold; color: white;'> 🔴 Choose a player and find out who are the 15th most
-similar players, according to the implicit model. You can filter the results by age and league.</p>
+    <p style='font-size: 19px; font-weight: bold; color: black;'> 🔴 Choose a player and find out who are the 15 most
+    similar players, according to the implicit model. You can filter the results per age and league.</p>
 """, unsafe_allow_html=True)
 
 # GK note missing data
@@ -60,7 +60,7 @@ df = df[(df['90s'] >= min_ninety_sim)]
 df_orig = df.copy()
 
 # choosing the player that the user wants to see similar players
-player = st.sidebar.selectbox("**Name of the player:**", df_orig['Player'])
+player = st.sidebar.selectbox("**Name of the player:**", df['Player'])
 # fazer display da player_similars
 st.title('Who are the most similar players to ' + player + '?')
 
@@ -93,9 +93,7 @@ try:
 
     st.dataframe(player_similars.set_index('Player'))
 except KeyError:
-    st.warning("We have no similarities for this player because this player has not enough minutes to draw conclusions. Try with another player.")
-
-
+    st.warning("Error: We have no similarities for this player because this players has no enough minutes to get conclusions.")
 
 
 
