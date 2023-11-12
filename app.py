@@ -93,7 +93,7 @@ try:
 
     st.dataframe(player_similars.set_index('Player'))
 except KeyError:
-    st.warning("Error: We have no similarities for this player because this players has no enough minutes to get conclusions.")
+    st.warning("Error: We have no similarities for this player because this player has not enough minutes to draw conclusions. Try with another player.")
 
 
 
