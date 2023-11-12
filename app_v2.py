@@ -65,7 +65,7 @@ st.sidebar.markdown(f'<a href="{kofi_link}" target="_blank"><img src="https://cd
 
 try:
     df_final = app.final_df(player, age_limit=age_limit, leagues=leagues, n=n)
-    st.dataframe(df_final)
+    st.dataframe(df_final[['Player', '% similarity', 'Position', 'Squad', 'League', 'Age', '90s')
 except KeyError:
     st.warning("We have no similarities for this player because this player has not enough minutes to draw conclusions. Try with another player.")
 
