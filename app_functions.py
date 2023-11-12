@@ -1,38 +1,14 @@
 # libraries
-import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
-import streamlit as st
-import io
-from urllib.request import urlopen
-from PIL import Image
-from mplsoccer import PyPizza, add_image, FontManager
-import matplotlib.font_manager
-from IPython.core.display import HTML
-from pathlib import Path
-from PIL import Image
-from io import BytesIO
-import requests
-import seaborn as sns
-from datetime import datetime
-import lxml
-
+import pandas as pd
 from sklearn import preprocessing
-from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-
-font_normal = FontManager('https://raw.githubusercontent.com/google/fonts/main/apache/roboto/'
-                          'Roboto%5Bwdth,wght%5D.ttf')
-font_italic = FontManager('https://raw.githubusercontent.com/google/fonts/main/apache/roboto/'
-                          'Roboto-Italic%5Bwdth,wght%5D.ttf')
-font_bold = FontManager('https://raw.githubusercontent.com/google/fonts/main/apache/robotoslab/'
-                        'RobotoSlab%5Bwght%5D.ttf')
-
-
-# default fontname
-def make_html(fontname):
-    return "<p>{font}: <span style='font-family:{font}; font-size: 24px;'>{font}</p>".format(font=fontname)
-
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.spatial.distance import cdist
+import lxml
 
 # creating dataframe function
 def get_df(url_df, columns_remaining_list):
@@ -170,131 +146,12 @@ def get_df_complete():
     return df
 
 
-# calculating and adding percentile columns to df function
-def percentiles_df(df_filtered_player_position):
-    # percentile columns list
-    df_cols_pct = ['Non-penalty goals', 'Shot creation actions', 'Aerial duels won %', 'Fouls won', 'Crosses',
-                   'Ball recoveries', 'npxG', 'npxG/shot', 'Shots on target', 'Passes completed', 'Key passes', 'Expected xA',
-                   'Final 3rd passes', 'Long passes', 'Progressive passes', 'Pass completion %',
-                   'Tackles + interceptions', 'Shots blocked', 'Clearances', 'Dribbles attempted', 'Dribbles success %',
-                   'Carries into penalty area', 'Passes received', 'Progressive passes received', 'Progressive carries']
-    for col in df_cols_pct:
-        # Calculate the percentiles for each 'param' column
-        percentiles = np.percentile(df_filtered_player_position[col], np.linspace(0, 100, num=101))
-        df_filtered_player_position[col + '_pct'] = np.searchsorted(percentiles, df_filtered_player_position[col]) * (
-                    100 / (len(percentiles) - 1))
-
-    return df_filtered_player_position
-
-
-def templates_position_params_legend(player_position):
-    params = []
-    if player_position == 'Goalkeeper':
-        params = []
-    elif player_position == 'Defender':
-        params_legend = ['Non-penalty\ngoals', 'Shot creation\nactions', 'Progressive passes\nreceived',
-                         'Carries into\npenalty area', 'Progressive\ncarries',
-                         'Dribbles\nattempted', 'Dribbles\nsuccess %',
-                         'Tackles\n+\ninterceptions', 'Shots\nblocked', 'Clearances', 'Aerial duels\nwon %',
-                         'Ball\nrecoveries', 'Final 3rd\npasses', 'Long\npasses', 'Progressive\npasses', 'Expected xA']
-
-    elif player_position == 'Midfielder':
-        params_legend = ['Non-penalty\ngoals', 'Shot creation\nactions',
-                         'Progressive\ncarries', 'Dribbles\nattempted', 'Dribbles\nsuccess %',
-                         'Tackles +\ninterceptions', 'Aerial duels\nwon %', 'Fouls\nwon',
-                         'Ball\nrecoveries', 'Passes\ncompleted', 'Pass\ncompletion %', 'Key\npasses',
-                         'Final 3rd\npasses', 'Long\npasses', 'Progressive\npasses', 'Expected xA']
-
-    else:
-        params_legend = ['Non-penalty\ngoals', 'npxG', 'npxG/shot', 'Shots on\ntarget',
-                         'Shot creation\nactions', 'Dribbles\nattempted', 'Dribbles\nsuccess %',
-                         'Carries into\npenalty area', 'Tackles +\ninterceptions', 'Aerial duels\nwon %',
-                         'Passes\nreceived', 'Passes\ncompleted', 'Crosses', 'Key\npasses', 'Expected xA']
-
-    return params_legend
-
-
-def templates_position_params(player_position):
-    params = []
-    if player_position == 'Goalkeeper':
-        params = []
-    elif player_position == 'Defender':
-        params = ['Non-penalty goals_pct', 'Shot creation actions_pct', 'Progressive passes received_pct',
-                  'Carries into penalty area_pct', 'Progressive carries_pct',
-                  'Dribbles attempted_pct', 'Dribbles success %_pct',
-                  'Tackles + interceptions_pct', 'Shots blocked_pct', 'Clearances_pct', 'Aerial duels won %_pct',
-                  'Ball recoveries_pct', 'Final 3rd passes_pct', 'Long passes_pct',
-                  'Progressive passes_pct',
-                  'Expected xA_pct']
-
-    elif player_position == 'Midfielder':
-        params = ['Non-penalty goals_pct', 'Shot creation actions_pct',
-                  'Progressive carries_pct', 'Dribbles attempted_pct', 'Dribbles success %_pct',
-                  'Tackles + interceptions_pct', 'Aerial duels won %_pct', 'Fouls won_pct',
-                  'Ball recoveries_pct', 'Passes completed_pct', 'Pass completion %_pct', 'Key passes_pct',
-                  'Final 3rd passes_pct', 'Long passes_pct', 'Progressive passes_pct', 'Expected xA_pct']
-
-    else:
-        params = ['Non-penalty goals_pct', 'npxG_pct', 'npxG/shot_pct', 'Shots on target_pct',
-                  'Shot creation actions_pct', 'Dribbles attempted_pct', 'Dribbles success %_pct',
-                  'Carries into penalty area_pct', 'Tackles + interceptions_pct', 'Aerial duels won %_pct',
-                  'Passes received_pct', 'Passes completed_pct', 'Crosses_pct', 'Key passes_pct', 'Expected xA_pct']
-
-    return params
-
-
-# Save image function
-def save_image():
-    buf1 = io.BytesIO()
-    plt.savefig(buf1, dpi=500, bbox_inches='tight', facecolor='white', format="png")
-    # Return buffer content
-    return buf1.getvalue()
-
-
 def name_abrev(row):
     palavras = row.split()
     if len(palavras) == 3:
         return ' '.join(palavras[1:])
     elif len(palavras) > 0:
         return palavras[0][0] + '.' + ' ' + palavras[1] if len(palavras) > 1 else palavras[0]
-
-
-def plot_cluster(df, league):
-    reduced_league = df[df['League'] == league]
-    reduced_league['legend'] = reduced_league.apply(lambda row: name_abrev(row['Player']), axis=1)
-
-    ax = sns.lmplot(x="y", y="x", hue='cluster', data=reduced_league, legend=False, fit_reg=False,
-                    size=15, scatter_kws={"s": 250})
-
-    texts = []
-    for x, y, s in zip(reduced_league.y, reduced_league.x, reduced_league.legend):
-        texts.append(plt.text(x, y, s, fontweight='heavy', fontsize=15))
-
-    ax.set(ylim=(reduced_league['x'].min() - 0.3, reduced_league['x'].max() + 0.3))
-    ax.set(xlim=(reduced_league['y'].min() - 0.3, reduced_league['y'].max() + 0.3))
-
-    # calcular as médias das variáveis PC1 e PC2
-    pc1_mean = reduced_league['x'].mean()
-    pc2_mean = reduced_league['y'].mean()
-
-    # adicionar as linhas tracejadas para as médias das variáveis PC1 e PC2
-    plt.axhline(pc1_mean, linestyle='--', color='gray', alpha=0.5)
-    plt.axvline(pc2_mean, linestyle='--', color='gray', alpha=0.5)
-
-    plt.tick_params(labelsize=15)
-    plt.xlabel("PC 2", fontsize=20)
-    plt.ylabel("PC 1", fontsize=20)
-
-    date = datetime.today()
-    d = str(date.strftime('%d-%m-%Y'))
-
-    plt.text(reduced_league.y.min() - 0.3, reduced_league.x.min() - 0.5, d, fontdict=None, fontsize=10,
-             fontweight='heavy')
-    plt.tight_layout()
-
-    # Exibe a imagem na aplicação Streamlit
-    st.pyplot(ax.fig)
-    sns.set(style="white")
 
 
 def reduced_df(df):
@@ -304,7 +161,7 @@ def reduced_df(df):
     df = df.drop(['Player'], axis=1)
 
     x = df.values
-    scaler = preprocessing.MinMaxScaler()
+    scaler = StandardScaler()
     x_scaled = scaler.fit_transform(x)
     X_norm = pd.DataFrame(x_scaled)
 
@@ -317,7 +174,7 @@ def reduced_df(df):
 def wcss_k_opt(reduced):
     wcss = []
     for i in range(1, 11):
-        kmeans = KMeans(n_clusters=i, init='k-means++', n_init='auto', random_state=42)
+        kmeans = KMeans(n_clusters=i, init='k-means++', n_init=10, random_state=42)
         kmeans.fit(reduced)
         wcss.append(kmeans.inertia_)
 
@@ -411,3 +268,86 @@ def similarity_process(df, player):
     player_similars['Age'] = player_similars['Age'].astype(int)
 
     return player_similars
+
+
+def calculate_euclidean_distance_v2(reduced_sim):
+    features = reduced_sim[['x', 'y']].values
+
+    distance_matrix = cdist(features, features, metric='euclidean')
+
+    distance_df = pd.DataFrame(distance_matrix, index=reduced_sim['Player'], columns=reduced_sim['Player'])
+
+    return distance_df
+
+def calculate_similarity_v2(distance_matrix):
+    similarity_matrix = 1 / (1 + distance_matrix)
+    np.fill_diagonal(similarity_matrix.values, 0)
+    return similarity_matrix * 100
+
+
+def similarity_process_v2(df, player):
+    reduced_sim = cluster_process(df)
+    distance_matrix = calculate_euclidean_distance_v2(reduced_sim)
+    sim_matrix = calculate_similarity_v2(distance_matrix)
+
+    # Exemplo de como obter os jogadores mais similares ao jogador "player1"
+    similarities = sim_matrix.loc[player].sort_values(ascending=False)
+    player_similars = similarities.reset_index().drop_duplicates()
+    player_similars.rename(columns={player: '% similarity'}, inplace=True)
+    player_similars['% similarity'] = player_similars['% similarity'].round(2)
+
+    df_sorted = df.sort_values(by='90s', ascending=False)
+    result_df = df_sorted.drop_duplicates(subset='Player')
+
+    player_similars = player_similars.merge(result_df[['Player', 'Squad', 'League',
+                                                'Age', 'Nation', '90s', 'Position']],
+                                                 on='Player', how='left')
+    player_similars['Age'] = player_similars['Age'].astype(int)
+
+    return player_similars
+
+def cosine_sim_player(player_name):
+    df = get_df_complete()
+
+    index_player = {name: index for index, name in enumerate(df['Player'])}
+
+    index = index_player[player_name]
+
+    scaler = StandardScaler()
+
+    data_players = df.drop(columns=['Player','Nation', 'Squad',
+                                     'Age','Position','Position_2',
+                                     'League'])
+
+    data_players_normalized = scaler.fit_transform(data_players)
+
+    player_data = data_players.iloc[index].values.reshape(1, -1)
+    player_data_normalized = scaler.transform(player_data)
+    similarities = cosine_similarity(player_data_normalized, data_players_normalized)
+    similarities_converted = ((similarities + 1) / 2 * 100).round(1)
+
+    result_df = pd.DataFrame({
+        'Player': df['Player'],
+        'Squad': df['Squad'],
+        '% similarity': similarities_converted[0]
+    })
+
+    return result_df.sort_values(by='% similarity', ascending=False)
+
+def final_df(player, age_limit=45, leagues='All',n=15):
+    df = get_df_complete()
+    player_similars = cosine_sim_player(player)[1:]
+    player_similars = player_similars.merge(df, on=['Player','Squad'], how='left')
+
+    if leagues != 'All':
+        player_similars = player_similars[(player_similars['League'] == leagues) & (player_similars['Age'] <= age_limit)
+        ].head(n)
+    else:
+        player_similars = player_similars[
+            player_similars['Age'] <= age_limit].head(n)
+
+    df_final = player_similars[1:].round(2)
+    df_final['Age'] = df_final['Age'].astype(int)
+    df_final = df_final.rename(columns={'Position_2': 'Secondary Position'})
+
+    return df_final
